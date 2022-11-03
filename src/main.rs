@@ -20,6 +20,10 @@ struct Args {
     /// The output file name
     #[arg(short, long = "output-file")]
     output_file: String,
+
+    /// Pretty-print the final JSON
+    #[arg(short, long)]
+    pretty: bool,
 }
 
 fn main() {
@@ -31,7 +35,13 @@ fn main() {
     let input = from_utf8(&raw_input).unwrap();
 
     let list: Vec<&str> = input.split_terminator("\n").collect();
-    let json_list = serde_json::to_string_pretty(&list).unwrap();
+
+    let json_list: String;
+    if args.pretty {
+        json_list = serde_json::to_string_pretty(&list).unwrap();
+    } else {
+        json_list = serde_json::to_string(&list).unwrap();
+    }
 
     std::fs::write(&args.output_file, &json_list).expect("Unable to write to file");
     info!("Your file has been created at {}", &args.output_file);
